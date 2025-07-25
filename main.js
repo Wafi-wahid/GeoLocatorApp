@@ -7,17 +7,12 @@ function checkAgeFirst() {
   const savedAge = parseInt(localStorage.getItem("age"));
   const denied = sessionStorage.getItem("deniedOnce");
 
-  if (savedAge >= 18 || denied === "false") {
-    initApp();
+  if (denied === "true") {
+    denyAccess(); // 🛑 Hard deny if previously denied
   } else if (!isNaN(savedAge) && savedAge < 18) {
-    if (!denied) {
-      sessionStorage.setItem("deniedOnce", "true");
-      localStorage.removeItem("age");
-      denyAccess();
-    } else {
-      sessionStorage.setItem("deniedOnce", "false");
-      initApp();
-    }
+    denyAccess();
+  } else if (savedAge >= 18) {
+    initApp();
   } else {
     showAgePopup();
   }
@@ -32,14 +27,37 @@ function showAgePopup() {
     const ageVal = +document.getElementById("ageInput").value;
     if (!ageVal || ageVal < 0) return alert("Enter a valid age.");
 
+    if (sessionStorage.getItem("popupAge")) {
+      const existingAge = parseInt(sessionStorage.getItem("popupAge"));
+
+      if (existingAge < 18) {
+        alert("Access Denied! You cannot continue.");
+        sessionStorage.setItem("deniedOnce", "true");
+        denyAccess();
+        return;
+      }
+
+      alert("You can only update your Date of Birth now.");
+      modal.classList.add("hidden");
+      return;
+    }
+
     localStorage.setItem("age", ageVal);
-    modal.classList.add("hidden");
     sessionStorage.setItem("popupAge", ageVal);
+    modal.classList.add("hidden");
+
     if (ageVal < 18) {
+      const retry = confirm("You must be 18+ to access. Retry?");
       localStorage.removeItem("age");
-      denyAccess();
+
+      if (retry) {
+        document.getElementById("ageInput").value = "";
+        modal.classList.remove("hidden"); // Keep popup open
+      } else {
+        sessionStorage.setItem("deniedOnce", "true"); // 🔐 Mark that user is denied
+        denyAccess();
+      }
     } else {
-      localStorage.setItem("age", ageVal);
       initApp();
     }
   };
@@ -161,16 +179,30 @@ function showAge() {
   // Match with popup age
   const popupAge = parseInt(sessionStorage.getItem("popupAge"));
   if (!isNaN(popupAge) && popupAge !== years) {
+    const retried = sessionStorage.getItem("retryOnce");
+
+    if (retried === "true") {
+      alert("Second mismatch detected. Access denied.");
+      window.location.href = "/restricted.html";
+      return;
+    }
+
     const retry = confirm(
       "Mismatch in age entered and DOB-calculated age!\nWould you like to retry?"
     );
+
     if (retry) {
-      localStorage.removeItem("age");
-      sessionStorage.removeItem("popupAge");
-      document.getElementById("ageModal").classList.remove("hidden");
+      sessionStorage.setItem("retryOnce", "true"); // 👈 mark that they've already retried once
+
+      alert("Please correct your Date of Birth to match the entered age.");
+      document.getElementById("ageModal").classList.add("hidden"); // hide popup
+      document
+        .getElementById("dobSection")
+        .scrollIntoView({ behavior: "smooth" });
     } else {
       window.location.href = "/restricted.html";
     }
+
     return;
   }
 }
