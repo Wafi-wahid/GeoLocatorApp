@@ -12,6 +12,7 @@ function checkAgeFirst() {
   } else if (!isNaN(savedAge) && savedAge < 18) {
     if (!denied) {
       sessionStorage.setItem("deniedOnce", "true");
+      localStorage.removeItem("age");
       denyAccess();
     } else {
       sessionStorage.setItem("deniedOnce", "false");
@@ -35,8 +36,10 @@ function showAgePopup() {
     modal.classList.add("hidden");
     sessionStorage.setItem("popupAge", ageVal);
     if (ageVal < 18) {
+      localStorage.removeItem("age");
       denyAccess();
     } else {
+      localStorage.setItem("age", ageVal);
       initApp();
     }
   };
@@ -158,8 +161,17 @@ function showAge() {
   // Match with popup age
   const popupAge = parseInt(sessionStorage.getItem("popupAge"));
   if (!isNaN(popupAge) && popupAge !== years) {
-    alert("Mismatch in age entered and DOB-calculated age!");
-    window.location.href = "/restricted.html";
+    const retry = confirm(
+      "Mismatch in age entered and DOB-calculated age!\nWould you like to retry?"
+    );
+    if (retry) {
+      localStorage.removeItem("age");
+      sessionStorage.removeItem("popupAge");
+      document.getElementById("ageModal").classList.remove("hidden");
+    } else {
+      window.location.href = "/restricted.html";
+    }
+    return;
   }
 }
 
