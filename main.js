@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   checkAgeFirst();
 });
 
+/* TODO: Check Age */
 function checkAgeFirst() {
   const savedAge = parseInt(localStorage.getItem("age"));
   const denied = sessionStorage.getItem("deniedOnce");
@@ -21,6 +22,7 @@ function checkAgeFirst() {
   }
 }
 
+/* TODO:  Age PopUP*/
 function showAgePopup() {
   const modal = document.getElementById("ageModal");
   modal.classList.remove("hidden");
@@ -40,6 +42,7 @@ function showAgePopup() {
   };
 }
 
+/* TODO: If age <18, Deny access */
 function denyAccess() {
   alert("Access Denied! Redirecting...");
   window.location.href = "https://example.com/restricted.html";
@@ -57,6 +60,7 @@ function initApp() {
   addEventListeners();
 }
 
+/* TODO: User location: IP & Country using API */
 function getUserLocation() {
   fetch("https://ipinfo.io/json?token=c8d80fd0dcec6b")
     .then((res) => res.json())
@@ -82,6 +86,7 @@ function getUserLocation() {
     });
 }
 
+/* TODO: DOB */
 function populateDOB() {
   const now = new Date();
   const day = document.getElementById("dobDay");
@@ -113,6 +118,7 @@ function populateDOB() {
   [day, month, year].forEach((el) => el.addEventListener("change", showAge));
 }
 
+/* TODO: Calculated Age based on DOB*/
 function showAge() {
   const day = parseInt(document.getElementById("dobDay").value);
   const month = parseInt(document.getElementById("dobMonth").value);
@@ -149,7 +155,7 @@ function showAge() {
   const ageResult = document.getElementById("ageResult");
   ageResult.innerText = `You are ${years} years, ${months} months, ${days} days old`;
 
-  // Match with popup
+  // Match with popup age
   const popupAge = parseInt(sessionStorage.getItem("popupAge"));
   if (!isNaN(popupAge) && popupAge !== years) {
     alert("Mismatch in age entered and DOB-calculated age!");
@@ -157,6 +163,7 @@ function showAge() {
   }
 }
 
+/* TODO: Country Dropdown */
 async function setupCountryDropdown() {
   const dropdown = document.getElementById("countryDropdown");
 
@@ -200,24 +207,24 @@ async function setupCountryDropdown() {
         );
 
         if (!confirmChange) {
-          // ❌ Cancelled, revert dropdown and do NOT update flag/fact
+          //  Cancelled, revert dropdown and do NOT update flag/fact
           dropdown.value = ipCountryCode;
           return;
         }
 
-        // ✅ User confirmed, update stored IP (override)
+        //  User confirmed, update stored IP (override)
         ipCountryCode = selectedCode;
         ipCountryName = selectedData.name.common;
         localStorage.setItem("countryCode", selectedCode);
         localStorage.setItem("selectedCountry", selectedData.name.common);
         localStorage.setItem("ip", "Overridden manually");
       } else {
-        // ✅ Match or no IP country found
+        //  Match or no IP country found
         localStorage.setItem("countryCode", selectedCode);
         localStorage.setItem("selectedCountry", selectedData.name.common);
       }
 
-      // 🔁 Show country flag & facts only *after* confirmation
+      // Show country flag & facts only *after* confirmation
       const flag = selectedData.flags?.svg || "";
       const fact = `Capital: ${
         selectedData.capital?.[0] || "N/A"
@@ -233,6 +240,7 @@ async function setupCountryDropdown() {
   }
 }
 
+/* TODO: Automatically refill */
 function loadFromStorage() {
   const dob = JSON.parse(localStorage.getItem("dob") || "{}");
   const dobDay = document.getElementById("dobDay");
@@ -243,7 +251,7 @@ function loadFromStorage() {
   if (dob.m) dobMonth.value = dob.m;
   if (dob.y) dobYear.value = dob.y;
   if (dob.d && dob.m && dob.y) {
-    showAge(); // 🔥 Trigger age calculation if all are prefilled
+    showAge(); // Trigger age calculation if all are prefilled
   }
 
   const savedCountryCode = localStorage.getItem("countryCode");
@@ -254,6 +262,7 @@ function loadFromStorage() {
   }
 }
 
+/* TODO: Event Listeners */
 function addEventListeners() {
   document.getElementById("themeToggle").onclick = () => {
     document.body.classList.toggle("dark");
@@ -271,6 +280,7 @@ function addEventListeners() {
   document.getElementById("calculateBtn").addEventListener("click", showAge);
 }
 
+/* TODO: Theme */
 function loadTheme() {
   const theme = localStorage.getItem("theme");
   if (theme === "dark") document.body.classList.add("dark");
